@@ -52,6 +52,7 @@ public class FtpDialog extends javax.swing.JFrame {
         portNumberSp = new javax.swing.JSpinner();
         loginBt = new javax.swing.JButton();
         passField = new javax.swing.JTextField();
+        disconnectBt = new javax.swing.JButton();
         closeBt = new javax.swing.JButton();
         filesPanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -67,8 +68,8 @@ public class FtpDialog extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Java FTP Client ");
         setName("loginFrame"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(1000, 800));
-        setSize(new java.awt.Dimension(1000, 800));
+        setPreferredSize(new java.awt.Dimension(1100, 900));
+        setSize(new java.awt.Dimension(1100, 900));
 
         loginDialog.setBorder(javax.swing.BorderFactory.createTitledBorder("Session"));
 
@@ -86,6 +87,13 @@ public class FtpDialog extends javax.swing.JFrame {
         loginBt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 loginBtActionPerformed(evt);
+            }
+        });
+
+        disconnectBt.setText("Disconnect");
+        disconnectBt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                disconnectBtActionPerformed(evt);
             }
         });
 
@@ -112,7 +120,9 @@ public class FtpDialog extends javax.swing.JFrame {
                 .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(loginBt)
-                .addContainerGap(306, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(disconnectBt)
+                .addContainerGap(211, Short.MAX_VALUE))
         );
         loginDialogLayout.setVerticalGroup(
             loginDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -126,7 +136,8 @@ public class FtpDialog extends javax.swing.JFrame {
                     .addComponent(userNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(passwordLabel)
                     .addComponent(loginBt)
-                    .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(disconnectBt))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -278,74 +289,131 @@ public class FtpDialog extends javax.swing.JFrame {
         Trace.connectionFtp = true;
 
         InetAddress address = null;
-        
-        try {
-            address = InetAddress.getByName(host);;
-            hostIP = StringUtils.substringAfter(address.toString(), "/");
-            if (hostIP == null || hostIP.equals("127.0.0.1")) {
-                JOptionPane.showMessageDialog(rootFrame, "Host name not set", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            if(port == 0)
-                JOptionPane.showMessageDialog(rootFrame, "Invalid port number", "Error" , JOptionPane.ERROR_MESSAGE);
-            if (Trace.connectionFtp) {
-                Trace.trc("Host IP address: " + hostIP);
-            }
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
 
-        try {
-            if (address != null && port != 0 && user != null && pass != null) {
-                ftpHandler.doConnect(hostIP, port, user, pass);
-                connected = true;
+        if (!connected) {
+            try {
+                address = InetAddress.getByName(host);;
+                hostIP = StringUtils.substringAfter(address.toString(), "/");
+                if (hostIP == null || hostIP.equals("127.0.0.1")) {
+                    JOptionPane.showMessageDialog(rootFrame, "Host name not set", 
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (port == 0) {
+                    JOptionPane.showMessageDialog(rootFrame, "Invalid port number", 
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                if (Trace.connectionFtp) {
+                    Trace.trc("Host IP address: " + hostIP);
+                }
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        try {
-            if(Trace.connectionFtp){
-                Trace.trc("Attempting to list the remote directory...");
+
+            try {
+                if (address != null && port != 0 && user != null && pass != null) {
+                    ftpHandler.doConnect(hostIP, port, user, pass);
+                    connected = true;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            String dirList = ftpHandler.list();
-            ftpHandler.pwd();
-            outputTextArea.setText(dirList);
-        }catch(IOException e){
-            e.printStackTrace();
+
+            try {
+                if (Trace.connectionFtp) {
+                    Trace.trc("Attempting to list the remote directory...");
+                }
+                String dirList = ftpHandler.list();
+                ftpHandler.pwd();
+                outputTextArea.setText(dirList);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            JOptionPane.showMessageDialog(rootFrame,
+                    "Already connected to a FTP server, cannot reconnect!", "Error", JOptionPane.ERROR_MESSAGE);
         }
 
     }//GEN-LAST:event_loginBtActionPerformed
 
     private void cdDirBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cdDirBtActionPerformed
         // TODO add your handling code here:
-        String dir = cdDirText.getText();
-        Trace.trc("Changing to new directory: " + dir);
-        try {
-            ftpHandler.cwd(dir);
-            ftpHandler.pwd();
-            String dirList = ftpHandler.list();
-            outputTextArea.setText(dirList);
-            cdDirText.setText("");
-        } catch (IOException e) {
-            e.printStackTrace();
+        
+        Trace.connectionFtp = true;
+
+        if (!cdDirText.getText().equals("")) {
+            if(Trace.connectionFtp)
+                Trace.trc("Changing to new directory: " + cdDirText.getText());
+            try {
+                ftpHandler.cwd(cdDirText.getText());
+                ftpHandler.pwd();
+                String dirList = ftpHandler.list();
+                outputTextArea.setText(dirList);
+                cdDirText.setText("");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            JOptionPane.showMessageDialog(rootFrame,
+                    "No directory has been selected, cannot CWD!", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_cdDirBtActionPerformed
 
     private void fileDlBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileDlBtActionPerformed
         // TODO add your handling code here:
+        
+        Trace.connectionFtp = true;
+        
         boolean hasDownloaded = false;
-        Trace.trc("Download file: " + fileDlText.getText());
-        try{
-            hasDownloaded = ftpHandler.retr(fileDlText.getText());
-            if (hasDownloaded) {
-                JOptionPane.showMessageDialog(rootFrame, "File " + fileDlText.getText() + " was downloaded successfully");
-                fileDlText.setText("");
+        if (!fileDlText.getText().equals("")) {
+            if(Trace.connectionFtp)
+                Trace.trc("Download file: " + fileDlText.getText());
+            try {
+                hasDownloaded = ftpHandler.retr(fileDlText.getText());
+                if (hasDownloaded) {
+                    JOptionPane.showMessageDialog(rootFrame, "File " 
+                            + fileDlText.getText() + " was downloaded successfully");
+                    fileDlText.setText("");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }catch(IOException e){
-            e.printStackTrace();
+        } else {
+            JOptionPane.showMessageDialog(rootFrame, 
+                    "No file to download has been selected!", "Error", 
+                    JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_fileDlBtActionPerformed
+
+    private void disconnectBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disconnectBtActionPerformed
+        // TODO add your handling code here:
+        Trace.connectionFtp = true;
+
+        if (connected) {
+            if (Trace.connectionFtp) {
+                Trace.trc("Disconnecting from server: " + hostAddressField.getText());
+            }
+            fileDlText.setText("");
+            outputTextArea.setText("");
+            hostAddressField.setText("");
+            userNameField.setText("");
+            passField.setText("");
+
+            try {
+                ftpHandler.disconnect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            connected = false;
+            JOptionPane.showMessageDialog(rootFrame, "Disconnected from server.");
+        } else {
+            JOptionPane.showMessageDialog(rootFrame, 
+                    "Not connected to a server, cannot disconnect!", "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+        }
+
+    }//GEN-LAST:event_disconnectBtActionPerformed
 
     /**
      * @param args the command line arguments
@@ -391,6 +459,7 @@ public class FtpDialog extends javax.swing.JFrame {
     private javax.swing.JTextField cdDirText;
     private javax.swing.JButton closeBt;
     private javax.swing.JPanel commandPanel;
+    private javax.swing.JButton disconnectBt;
     private javax.swing.JButton fileDlBt;
     private javax.swing.JLabel fileDlLabel;
     private javax.swing.JTextField fileDlText;

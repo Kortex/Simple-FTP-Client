@@ -138,6 +138,7 @@ public class FtpConnection {
 
         Trace.connection = true;
         String response = null;
+        Trace.ftpDialog = true;
 
         if (!isPassive) {
             passv();
@@ -175,6 +176,9 @@ public class FtpConnection {
     }
 
     public synchronized boolean passv() throws IOException {
+        
+        Trace.ftpDialog = true;
+        
         sendLine("PASV");
         String response = readLine();
         if (!response.startsWith("227 ")) {
@@ -203,6 +207,8 @@ public class FtpConnection {
     }
 
     public synchronized boolean stor(InputStream inputStream, String filename) throws IOException {
+        
+        Trace.ftpDialog = true;
 
         BufferedInputStream input = new BufferedInputStream(inputStream);
         String response = null;
@@ -238,6 +244,7 @@ public class FtpConnection {
     public synchronized boolean retr(String fileName) throws IOException {
 
         Trace.connection = true;
+        Trace.ftpDialog = true;
         String response = null;
 
         if (!isBinary && !isPassive) {
@@ -282,6 +289,9 @@ public class FtpConnection {
     }
 
     public synchronized boolean bin() throws IOException {
+        
+        Trace.ftpDialog = true;
+        
         sendLine("TYPE I");
         String response = readLine();
         isBinary = true;
@@ -289,6 +299,9 @@ public class FtpConnection {
     }
 
     public synchronized boolean ascii() throws IOException {
+        
+        Trace.ftpDialog = true;
+        
         sendLine("TYPE A");
         String response = readLine();
         return (response.startsWith("200 "));
@@ -316,16 +329,6 @@ public class FtpConnection {
             Trace.trc("<" + response);
         }
         return response;
-    }
-
-    private static String humanReadableByteCount(long bytes, boolean si) {
-        int unit = si ? 1000 : 1024;
-        if (bytes < unit) {
-            return bytes + " B";
-        }
-        int exp = (int) (Math.log(bytes) / Math.log(unit));
-        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
-        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
 }
