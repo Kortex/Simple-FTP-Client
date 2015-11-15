@@ -16,10 +16,8 @@ import java.net.Socket;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOError;
 import java.io.InputStream;
 import java.util.StringTokenizer;
-import javafx.scene.chart.BubbleChart;
 import utils.Trace;
 
 /**
@@ -251,10 +249,9 @@ public class FtpConnection {
         
         sendLine("RETR " + fullPath);
         response = readLine();
-        if(!response.startsWith("150")){
+        if(!response.startsWith("150"))
             throw new IOException("Unable to download file from the remote server");
-        }   
-        
+                 
         BufferedInputStream input = new BufferedInputStream(dataSocket.getInputStream());
         BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(new File(fileName)));
         
@@ -262,16 +259,19 @@ public class FtpConnection {
         int bytesRead = 0;
 
         while ((bytesRead = input.read(buffer)) != -1) {
-            output.write(bytesRead);
+            output.write(buffer,0,bytesRead);
+            output.flush();
         }
         output.close();
         input.close();
         
-        if(response.startsWith("226")){
-            isPassive = false;
-            return true;
-        }else{
+        response = readLine();
+        
+        if(!response.startsWith("226")){
             throw new IOException("Error");
+        }else{
+            isPassive = false;
+            return response.startsWith("226 ");
         }
     }
 

@@ -24,6 +24,7 @@ public class FtpDialog extends javax.swing.JFrame {
     
     FtpConnection ftpHandler = new FtpConnection();
     private boolean connected = false;
+    private JFrame rootFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
 
     /**
      * Creates new form FtpDialog
@@ -273,7 +274,6 @@ public class FtpDialog extends javax.swing.JFrame {
         String user = userNameField.getText();
         String pass = passField.getText();
         String hostIP = null;
-        JFrame rootFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
 
         Trace.connectionFtp = true;
 
@@ -334,9 +334,14 @@ public class FtpDialog extends javax.swing.JFrame {
 
     private void fileDlBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileDlBtActionPerformed
         // TODO add your handling code here:
+        boolean hasDownloaded = false;
         Trace.trc("Download file: " + fileDlText.getText());
         try{
-            ftpHandler.retr(fileDlText.getText());
+            hasDownloaded = ftpHandler.retr(fileDlText.getText());
+            if (hasDownloaded) {
+                JOptionPane.showMessageDialog(rootFrame, "File " + fileDlText.getText() + " was downloaded successfully");
+                fileDlText.setText("");
+            }
         }catch(IOException e){
             e.printStackTrace();
         }
