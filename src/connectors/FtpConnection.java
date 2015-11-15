@@ -121,7 +121,7 @@ public class FtpConnection {
 
         sendLine("CWD " + dir);
         String response = readLine();
-        
+
         return (response.startsWith("250 "));
     }
 
@@ -166,10 +166,10 @@ public class FtpConnection {
                 Trace.trc(content);
             }
         }
-        if(response.startsWith("226")){
+        if (response.startsWith("226")) {
             isPassive = false;
             return content;
-        }else{
+        } else {
             throw new IOException("Error");
         }
     }
@@ -198,7 +198,7 @@ public class FtpConnection {
         }
         dataSocket = new Socket(ip, port);
         isPassive = true;
-        
+
         return true;
     }
 
@@ -206,8 +206,8 @@ public class FtpConnection {
 
         BufferedInputStream input = new BufferedInputStream(inputStream);
         String response = null;
-        
-        if(!isPassive){
+
+        if (!isPassive) {
             passv();
         }
 
@@ -231,45 +231,51 @@ public class FtpConnection {
         output.close();
         input.close();
         isPassive = false;
-        
+
         return response.startsWith("226 ");
     }
-    
+
     public synchronized boolean retr(String fileName) throws IOException {
-        
+
         Trace.connection = true;
         String response = null;
-        
-        if(!isBinary && !isPassive){
+
+        if (!isBinary && !isPassive) {
             passv();
         }
-        
+
         String fullPath = pwd() + "/" + fileName;
         Trace.trc("Will retrieve the following file: " + fullPath);
-        
+
         sendLine("RETR " + fullPath);
         response = readLine();
-        if(!response.startsWith("150"))
+        if (!response.startsWith("150")) {
             throw new IOException("Unable to download file from the remote server");
-                 
+        }
+
+        if (Trace.connection) {
+            Trace.trc("Downloading file '" + fileName + "'. Filesize: "
+                    + response.substring(response.indexOf("(") + 1, response.indexOf(")")));
+        }
+
         BufferedInputStream input = new BufferedInputStream(dataSocket.getInputStream());
         BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(new File(fileName)));
-        
+
         byte[] buffer = new byte[4096];
         int bytesRead = 0;
 
         while ((bytesRead = input.read(buffer)) != -1) {
-            output.write(buffer,0,bytesRead);
+            output.write(buffer, 0, bytesRead);
             output.flush();
         }
         output.close();
         input.close();
-        
+
         response = readLine();
-        
-        if(!response.startsWith("226")){
+
+        if (!response.startsWith("226")) {
             throw new IOException("Error");
-        }else{
+        } else {
             isPassive = false;
             return response.startsWith("226 ");
         }
@@ -287,7 +293,6 @@ public class FtpConnection {
         String response = readLine();
         return (response.startsWith("200 "));
     }
-
 
     private void sendLine(String command) throws IOException {
         if (socket == null) {
@@ -311,6 +316,16 @@ public class FtpConnection {
             Trace.trc("<" + response);
         }
         return response;
+    }
+
+    private static String humanReadableByteCount(long bytes, boolean si) {
+        int unit = si ? 1000 : 1024;
+        if (bytes < unit) {
+            return bytes + " B";
+        }
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
 }
