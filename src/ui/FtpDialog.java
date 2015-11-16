@@ -362,6 +362,8 @@ public class FtpDialog extends javax.swing.JFrame {
                     Trace.trc("Host IP address: " + hostIP);
                 }
             } catch (UnknownHostException e) {
+                JOptionPane.showMessageDialog(rootFrame, "Cannot resolve host address", 
+                            "Error", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
             }
 

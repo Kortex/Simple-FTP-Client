@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.StringTokenizer;
 import utils.Trace;
 
@@ -228,7 +230,7 @@ public class FtpConnection {
         Socket dataSocket = new Socket(ip, port);
 
         response = readLine();
-        if (!response.startsWith("125 ")) {
+        if (!response.startsWith("150 ")) {
             if(response.startsWith("550")){
                 if( Trace.connection)
                     Trace.trc("Incorrect permissions to upload file!");
@@ -243,14 +245,18 @@ public class FtpConnection {
         int bytesRead = 0;
 
         while ((bytesRead = input.read(buffer)) != -1) {
+            System.out.println(Charset.defaultCharset().decode(ByteBuffer.wrap(buffer)));
             output.write(buffer, 0, bytesRead);
+            output.flush();
         }
-        output.flush();
+        
         output.close();
         input.close();
         isPassive = false;
+        
+        response = readLine();
 
-        return response.startsWith("226 ");
+        return checkFileOperationsStatus(response);
     }
 
     public synchronized boolean retr(String fileName) throws IOException {
@@ -259,7 +265,7 @@ public class FtpConnection {
         Trace.ftpDialog = true;
         String response = null;
 
-        if (!isBinary && !isPassive) {
+        if (!isPassive) {
             passv();
         }
 
@@ -292,12 +298,7 @@ public class FtpConnection {
 
         response = readLine();
 
-        if (!response.startsWith("226")) {
-            throw new IOException("Error");
-        } else {
-            isPassive = false;
-            return response.startsWith("226 ");
-        }
+        return checkFileOperationsStatus(response);
     }
 
     public synchronized boolean bin() throws IOException {
@@ -333,6 +334,17 @@ public class FtpConnection {
             socket = null;
             e.printStackTrace();
         }
+    }
+    
+    private boolean checkFileOperationsStatus(String response) throws IOException{
+
+        if (!response.startsWith("226")) {
+            throw new IOException("Error");
+        } else {
+            isPassive = false;
+            return response.startsWith("226 ");
+        }
+        
     }
 
     private String readLine() throws IOException {
