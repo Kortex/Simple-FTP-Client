@@ -47,9 +47,10 @@ public class FtpConnection {
         doConnect(host, portNumber, "anonymous", "anonymous");
     }
 
-    public synchronized void doConnect(String host, int portNumber, String user, String pass) throws IOException {
+    public synchronized boolean doConnect(String host, int portNumber, String user, String pass) throws IOException {
 
         Trace.ftpDialog = true;
+        Trace.connection = true;
 
         if (socket != null) {
             throw new IOException("FTP session already initiated, please disconnect first!");
@@ -76,14 +77,20 @@ public class FtpConnection {
 
         hostResponse = readLine();
         if (!hostResponse.startsWith("230")) {
-            throw new IOException("Received unknown response when providing password: " + hostResponse);
+            if(hostResponse.startsWith("530")){
+                if (Trace.connection)
+                    Trace.trc("Incorrect server credentials, cannot connect!");
+                return false;
+            }
+            else
+                throw new IOException("Received unknown response when providing password: " + hostResponse);
         }
-
-        Trace.connection = true;
-
+        
         if (Trace.connection) {
             Trace.trc("Login successfull");
         }
+        
+        return true;
 
     }
 
@@ -222,6 +229,11 @@ public class FtpConnection {
 
         response = readLine();
         if (!response.startsWith("125 ")) {
+            if(response.startsWith("550")){
+                if( Trace.connection)
+                    Trace.trc("Incorrect permissions to upload file!");
+                return false;
+            }
             throw new IOException("Not allowed to send file: " + response);
         }
 
