@@ -4,9 +4,6 @@
   <NonVisualComponents>
     <Container class="javax.swing.JDialog" name="fileChooserDialog">
       <Properties>
-        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[650, 500]"/>
-        </Property>
         <Property name="size" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[650, 500]"/>
         </Property>
@@ -80,16 +77,22 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="filesPanel" alignment="1" max="32767" attributes="0"/>
+                  <Component id="outputPanel" alignment="1" max="32767" attributes="0"/>
                   <Component id="loginDialog" alignment="0" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       <Component id="closeBt" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="commandPanel" alignment="0" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="navigationPanel" max="32767" attributes="0"/>
+                          <Component id="commandPanel" pref="410" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -101,10 +104,12 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="loginDialog" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="filesPanel" min="-2" max="-2" attributes="0"/>
+              <Component id="outputPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="commandPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="280" max="32767" attributes="0"/>
+              <Component id="commandPanel" min="-2" pref="164" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="navigationPanel" min="-2" pref="190" max="-2" attributes="0"/>
+              <EmptySpace pref="227" max="32767" attributes="0"/>
               <Component id="closeBt" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -145,7 +150,7 @@
                   <Component id="loginBt" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="disconnectBt" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="104" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -229,7 +234,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="closeBtActionPerformed"/>
       </Events>
     </Component>
-    <Container class="javax.swing.JPanel" name="filesPanel">
+    <Container class="javax.swing.JPanel" name="outputPanel">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
@@ -283,6 +288,9 @@
             <TitledBorder title="Command set"/>
           </Border>
         </Property>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[405, 130]"/>
+        </Property>
       </Properties>
 
       <Layout>
@@ -290,43 +298,29 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="cdDirLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="cdDirText" min="-2" pref="127" max="-2" attributes="0"/>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Component id="cdDirBt" max="32767" attributes="0"/>
+                          <Component id="uploadFileLb" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="161" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" attributes="0">
-                                  <Component id="fileDlLabel" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
-                                  <Component id="fileDlText" min="-2" pref="129" max="-2" attributes="0"/>
-                              </Group>
-                              <Component id="uploadFileLb" alignment="0" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="uploadFileBt" max="32767" attributes="0"/>
-                              <Component id="fileDlBt" max="32767" attributes="0"/>
-                          </Group>
+                          <Component id="fileDlLabel" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="fileDlText" min="-2" pref="129" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace pref="689" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="uploadFileBt" max="32767" attributes="0"/>
+                      <Component id="fileDlBt" max="32767" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="cdDirLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="cdDirText" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="cdDirBt" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
+              <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="fileDlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -335,30 +329,15 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="uploadFileBt" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="uploadFileLb" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="uploadFileBt" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="161" max="32767" attributes="0"/>
+                  <EmptySpace pref="78" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="cdDirLabel">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Change to another directory:"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JTextField" name="cdDirText">
-        </Component>
-        <Component class="javax.swing.JButton" name="cdDirBt">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Change"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cdDirBtActionPerformed"/>
-          </Events>
-        </Component>
         <Component class="javax.swing.JLabel" name="fileDlLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Select file to download:"/>
@@ -386,6 +365,130 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Select file to upload:"/>
           </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPanel" name="navigationPanel">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+            <TitledBorder title="Navigation Commands"/>
+          </Border>
+        </Property>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[410, 220]"/>
+        </Property>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="cdDirLabel" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="cdDirText" min="-2" pref="127" max="-2" attributes="0"/>
+                      </Group>
+                      <Component id="backLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="forwardLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="rootLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="cdDirBt" max="32767" attributes="0"/>
+                      <Component id="backBt" max="32767" attributes="0"/>
+                      <Component id="forwardBt" alignment="0" pref="100" max="32767" attributes="0"/>
+                      <Component id="rootBt" alignment="0" max="32767" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="cdDirLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="cdDirText" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="cdDirBt" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="backLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="backBt" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="forwardLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="forwardBt" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="rootLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="rootBt" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace pref="46" max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Component class="javax.swing.JLabel" name="cdDirLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Change to another directory:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="cdDirText">
+        </Component>
+        <Component class="javax.swing.JButton" name="cdDirBt">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Change"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cdDirBtActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JLabel" name="backLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Go to back:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="backBt">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Back"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="backBtActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JLabel" name="forwardLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Go forward:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="forwardBt">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Forward"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="forwardBtActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JLabel" name="rootLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Go to root:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="rootBt">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Root"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="rootBtActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

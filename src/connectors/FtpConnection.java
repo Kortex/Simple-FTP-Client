@@ -130,8 +130,23 @@ public class FtpConnection {
 
         sendLine("CWD " + dir);
         String response = readLine();
+        boolean cmdOutcome = false;
+        
+        if(response.startsWith("250")){
+            if(Trace.connection){
+                Trace.trc("Changed directory successfully");
+            }
+            cmdOutcome = true;
+            return cmdOutcome;
+        }
+        else if(response.startsWith("550")){
+            if(Trace.connection){
+                Trace.trc("Directory not found");
+            }
+            return cmdOutcome;
+        }
 
-        return (response.startsWith("250 "));
+        return cmdOutcome;
     }
 
     public synchronized boolean stor(File file) throws IOException {

@@ -22,10 +22,11 @@ import utils.Trace;
  * @author 'Αρης Κουρτέσας
  */
 public class FtpDialog extends javax.swing.JFrame {
-    
+
     FtpConnection ftpHandler = new FtpConnection();
     private boolean connected = false;
-    private  final JFrame rootFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+    private String lastKnownDir = null;
+    private final JFrame rootFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
 
     /**
      * Creates new form FtpDialog
@@ -58,20 +59,26 @@ public class FtpDialog extends javax.swing.JFrame {
         passField = new javax.swing.JTextField();
         disconnectBt = new javax.swing.JButton();
         closeBt = new javax.swing.JButton();
-        filesPanel = new javax.swing.JPanel();
+        outputPanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         outputTextArea = new javax.swing.JTextArea();
         commandPanel = new javax.swing.JPanel();
-        cdDirLabel = new javax.swing.JLabel();
-        cdDirText = new javax.swing.JTextField();
-        cdDirBt = new javax.swing.JButton();
         fileDlLabel = new javax.swing.JLabel();
         fileDlText = new javax.swing.JTextField();
         fileDlBt = new javax.swing.JButton();
         uploadFileBt = new javax.swing.JButton();
         uploadFileLb = new javax.swing.JLabel();
+        navigationPanel = new javax.swing.JPanel();
+        cdDirLabel = new javax.swing.JLabel();
+        cdDirText = new javax.swing.JTextField();
+        cdDirBt = new javax.swing.JButton();
+        backLabel = new javax.swing.JLabel();
+        backBt = new javax.swing.JButton();
+        forwardLabel = new javax.swing.JLabel();
+        forwardBt = new javax.swing.JButton();
+        rootLabel = new javax.swing.JLabel();
+        rootBt = new javax.swing.JButton();
 
-        fileChooserDialog.setPreferredSize(new java.awt.Dimension(650, 500));
         fileChooserDialog.setSize(new java.awt.Dimension(650, 500));
 
         uploadFileChooser.addActionListener(new java.awt.event.ActionListener() {
@@ -159,7 +166,7 @@ public class FtpDialog extends javax.swing.JFrame {
                 .addComponent(loginBt)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(disconnectBt)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(104, Short.MAX_VALUE))
         );
         loginDialogLayout.setVerticalGroup(
             loginDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -185,39 +192,31 @@ public class FtpDialog extends javax.swing.JFrame {
             }
         });
 
-        filesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Remote server output"));
+        outputPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Remote server output"));
 
         outputTextArea.setColumns(20);
         outputTextArea.setRows(5);
         jScrollPane1.setViewportView(outputTextArea);
 
-        javax.swing.GroupLayout filesPanelLayout = new javax.swing.GroupLayout(filesPanel);
-        filesPanel.setLayout(filesPanelLayout);
-        filesPanelLayout.setHorizontalGroup(
-            filesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, filesPanelLayout.createSequentialGroup()
+        javax.swing.GroupLayout outputPanelLayout = new javax.swing.GroupLayout(outputPanel);
+        outputPanel.setLayout(outputPanelLayout);
+        outputPanelLayout.setHorizontalGroup(
+            outputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, outputPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1)
                 .addContainerGap())
         );
-        filesPanelLayout.setVerticalGroup(
-            filesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(filesPanelLayout.createSequentialGroup()
+        outputPanelLayout.setVerticalGroup(
+            outputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(outputPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         commandPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Command set"));
-
-        cdDirLabel.setText("Change to another directory:");
-
-        cdDirBt.setText("Change");
-        cdDirBt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cdDirBtActionPerformed(evt);
-            }
-        });
+        commandPanel.setPreferredSize(new java.awt.Dimension(405, 130));
 
         fileDlLabel.setText("Select file to download:");
 
@@ -243,44 +242,117 @@ public class FtpDialog extends javax.swing.JFrame {
             commandPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(commandPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(commandPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(commandPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(commandPanelLayout.createSequentialGroup()
-                        .addComponent(cdDirLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cdDirText, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(cdDirBt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(uploadFileLb)
+                        .addGap(161, 161, 161))
                     .addGroup(commandPanelLayout.createSequentialGroup()
-                        .addGroup(commandPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(commandPanelLayout.createSequentialGroup()
-                                .addComponent(fileDlLabel)
-                                .addGap(31, 31, 31)
-                                .addComponent(fileDlText, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(uploadFileLb))
-                        .addGap(18, 18, 18)
-                        .addGroup(commandPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(uploadFileBt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(fileDlBt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(689, Short.MAX_VALUE))
+                        .addComponent(fileDlLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(fileDlText, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                .addGroup(commandPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(uploadFileBt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(fileDlBt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         commandPanelLayout.setVerticalGroup(
             commandPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(commandPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(commandPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cdDirLabel)
-                    .addComponent(cdDirText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cdDirBt))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(commandPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(fileDlLabel)
                     .addComponent(fileDlText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(fileDlBt))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(commandPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(uploadFileBt)
-                    .addComponent(uploadFileLb))
-                .addContainerGap(161, Short.MAX_VALUE))
+                    .addComponent(uploadFileLb)
+                    .addComponent(uploadFileBt))
+                .addContainerGap(78, Short.MAX_VALUE))
+        );
+
+        navigationPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Navigation Commands"));
+        navigationPanel.setPreferredSize(new java.awt.Dimension(410, 220));
+
+        cdDirLabel.setText("Change to another directory:");
+
+        cdDirBt.setText("Change");
+        cdDirBt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cdDirBtActionPerformed(evt);
+            }
+        });
+
+        backLabel.setText("Go to back:");
+
+        backBt.setText("Back");
+        backBt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backBtActionPerformed(evt);
+            }
+        });
+
+        forwardLabel.setText("Go forward:");
+
+        forwardBt.setText("Forward");
+        forwardBt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                forwardBtActionPerformed(evt);
+            }
+        });
+
+        rootLabel.setText("Go to root:");
+
+        rootBt.setText("Root");
+        rootBt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rootBtActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout navigationPanelLayout = new javax.swing.GroupLayout(navigationPanel);
+        navigationPanel.setLayout(navigationPanelLayout);
+        navigationPanelLayout.setHorizontalGroup(
+            navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(navigationPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(navigationPanelLayout.createSequentialGroup()
+                        .addComponent(cdDirLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cdDirText, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(backLabel)
+                    .addComponent(forwardLabel)
+                    .addComponent(rootLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cdDirBt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(backBt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(forwardBt, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+                    .addComponent(rootBt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        navigationPanelLayout.setVerticalGroup(
+            navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(navigationPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cdDirLabel)
+                    .addComponent(cdDirText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cdDirBt))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(backLabel)
+                    .addComponent(backBt))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(forwardLabel)
+                    .addComponent(forwardBt))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(rootLabel)
+                    .addComponent(rootBt))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -290,12 +362,16 @@ public class FtpDialog extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(filesPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(outputPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(loginDialog, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(closeBt))
-                    .addComponent(commandPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(navigationPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(commandPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -304,10 +380,12 @@ public class FtpDialog extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(loginDialog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(filesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(outputPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(commandPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 280, Short.MAX_VALUE)
+                .addComponent(commandPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(navigationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 227, Short.MAX_VALUE)
                 .addComponent(closeBt)
                 .addContainerGap())
         );
@@ -325,12 +403,12 @@ public class FtpDialog extends javax.swing.JFrame {
             }
             Trace.trc("Closing connection and exiting program...");
             System.exit(0);
-        }else{
+        } else {
             Trace.trc("Exiting program...");
             System.exit(0);
         }
-        
-        
+
+
     }//GEN-LAST:event_closeBtActionPerformed
 
     private void loginBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginBtActionPerformed
@@ -350,20 +428,20 @@ public class FtpDialog extends javax.swing.JFrame {
                 address = InetAddress.getByName(host);;
                 hostIP = StringUtils.substringAfter(address.toString(), "/");
                 if (hostIP == null || hostIP.equals("127.0.0.1")) {
-                    JOptionPane.showMessageDialog(rootFrame, "Host name not set", 
+                    JOptionPane.showMessageDialog(rootFrame, "Host name not set",
                             "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 if (port == 0) {
-                    JOptionPane.showMessageDialog(rootFrame, "Invalid port number", 
+                    JOptionPane.showMessageDialog(rootFrame, "Invalid port number",
                             "Error", JOptionPane.ERROR_MESSAGE);
                 }
                 if (Trace.connectionFtp) {
                     Trace.trc("Host IP address: " + hostIP);
                 }
             } catch (UnknownHostException e) {
-                JOptionPane.showMessageDialog(rootFrame, "Cannot resolve host address", 
-                            "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(rootFrame, "Cannot resolve host address",
+                        "Error", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
             }
 
@@ -386,7 +464,7 @@ public class FtpDialog extends javax.swing.JFrame {
                     Trace.trc("Attempting to list the remote directory...");
                 }
                 String dirList = ftpHandler.list();
-                ftpHandler.pwd();
+                lastKnownDir = ftpHandler.pwd();
                 outputTextArea.setText(dirList);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -399,56 +477,79 @@ public class FtpDialog extends javax.swing.JFrame {
     }//GEN-LAST:event_loginBtActionPerformed
 
     private void cdDirBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cdDirBtActionPerformed
-        // TODO add your handling code here:
-        
-        Trace.connectionFtp = true;
 
-        if (!cdDirText.getText().equals("")) {
-            if(Trace.connectionFtp)
-                Trace.trc("Changing to new directory: " + cdDirText.getText());
-            try {
-                ftpHandler.cwd(cdDirText.getText());
-                ftpHandler.pwd();
-                String dirList = ftpHandler.list();
-                outputTextArea.setText(dirList);
+        Trace.connectionFtp = true;
+        boolean hasChangedDir = false;
+
+        if (connected) {
+            if (!cdDirText.getText().equals("")) {
+                if (Trace.connectionFtp) {
+                    Trace.trc("Changing to new directory: "
+                            + cdDirText.getText().trim());
+                }
+                try {
+                    hasChangedDir = ftpHandler.cwd(cdDirText.getText().trim());
+
+                    if (hasChangedDir) {
+                        lastKnownDir = ftpHandler.pwd();
+                        String dirList = ftpHandler.list();
+                        outputTextArea.setText(dirList);
+                        cdDirText.setText("");
+                    } else {
+                        JOptionPane.showMessageDialog(rootFrame,
+                                "Non existing directory, cannot CWD!", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
                 cdDirText.setText("");
-            } catch (IOException e) {
-                e.printStackTrace();
+                JOptionPane.showMessageDialog(rootFrame,
+                        "No directory has been selected, cannot CWD!", "Error", JOptionPane.ERROR_MESSAGE);
             }
         } else {
             JOptionPane.showMessageDialog(rootFrame,
-                    "No directory has been selected, cannot CWD!", "Error", JOptionPane.ERROR_MESSAGE);
+                    "Not connected to a server, cannot disconnect!", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_cdDirBtActionPerformed
 
     private void fileDlBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileDlBtActionPerformed
-        // TODO add your handling code here:
-        
+
         Trace.connectionFtp = true;
-        
-        boolean hasDownloaded = false;
-        if (!fileDlText.getText().equals("")) {
-            if(Trace.connectionFtp)
-                Trace.trc("Download file: " + fileDlText.getText());
-            try {
-                hasDownloaded = ftpHandler.retr(fileDlText.getText());
-                if (hasDownloaded) {
-                    JOptionPane.showMessageDialog(rootFrame, "File " 
-                            + fileDlText.getText() + " was downloaded successfully");
-                    fileDlText.setText("");
+
+        if (connected) {
+            boolean hasDownloaded = false;
+            if (!fileDlText.getText().equals("")) {
+                if (Trace.connectionFtp) {
+                    Trace.trc("Download file: "
+                            + fileDlText.getText().trim());
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+                try {
+                    hasDownloaded = ftpHandler.retr(fileDlText.getText().trim());
+                    if (hasDownloaded) {
+                        JOptionPane.showMessageDialog(rootFrame, "File "
+                                + fileDlText.getText().trim() + " was downloaded successfully");
+                        fileDlText.setText("");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                JOptionPane.showMessageDialog(rootFrame,
+                        "No file to download has been selected!", "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         } else {
-            JOptionPane.showMessageDialog(rootFrame, 
-                    "No file to download has been selected!", "Error", 
+            JOptionPane.showMessageDialog(rootFrame,
+                    "Not connected to a server, cannot disconnect!", "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_fileDlBtActionPerformed
 
     private void disconnectBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disconnectBtActionPerformed
-        // TODO add your handling code here:
+
         Trace.connectionFtp = true;
 
         if (connected) {
@@ -470,33 +571,32 @@ public class FtpDialog extends javax.swing.JFrame {
             connected = false;
             JOptionPane.showMessageDialog(rootFrame, "Disconnected from server.");
         } else {
-            JOptionPane.showMessageDialog(rootFrame, 
-                    "Not connected to a server, cannot disconnect!", "Error", 
+            JOptionPane.showMessageDialog(rootFrame,
+                    "Not connected to a server, cannot disconnect!", "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
 
     }//GEN-LAST:event_disconnectBtActionPerformed
 
     private void uploadFileBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uploadFileBtActionPerformed
-        // TODO add your handling code here:
+
         fileChooserDialog.setVisible(true);
-        fileChooserDialog.setSize(650,500);
+        fileChooserDialog.setSize(650, 500);
         fileChooserDialog.pack();
-        
+
     }//GEN-LAST:event_uploadFileBtActionPerformed
 
     private void uploadFileChooserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uploadFileChooserActionPerformed
-        // TODO add your handling code here:
+
         File selectedFile = uploadFileChooser.getSelectedFile();
         boolean hasUploaded = false;
-        
+
         Trace.trc("File to upload: " + selectedFile.getName());
 
         FileInputStream input = null;
 
         if (connected) {
             if (!selectedFile.equals(null)) {
-
                 try {
                     input = new FileInputStream(selectedFile);
                 } catch (IOException e) {
@@ -521,11 +621,120 @@ public class FtpDialog extends javax.swing.JFrame {
             }
         } else {
             JOptionPane.showMessageDialog(rootFrame,
-                        "Not connected to a server, cannot upload file!", "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                    "Not connected to a server, cannot upload file!", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
-            
+
     }//GEN-LAST:event_uploadFileChooserActionPerformed
+
+    private void backBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtActionPerformed
+
+        Trace.connectionFtp = true;
+        String currentDir = null;
+
+        if (connected) {
+            if (Trace.connectionFtp) {
+                Trace.trc("Going back to previous directory");
+            }
+            try {
+                currentDir = ftpHandler.pwd();
+                lastKnownDir = currentDir;
+
+                if (currentDir.equals("/")) {
+                    JOptionPane.showMessageDialog(rootFrame,
+                            "Cannot go back, you are in the root directory.");
+                } else {
+                    ftpHandler.cwd("..");
+                    ftpHandler.pwd();
+                    String dirList = ftpHandler.list();
+                    outputTextArea.setText(dirList);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            JOptionPane.showMessageDialog(rootFrame,
+                    "Not connected to a server, cannot change directories!", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_backBtActionPerformed
+
+    private void forwardBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_forwardBtActionPerformed
+
+        String currentDir = null;
+
+        if (connected) {
+            if (Trace.connectionFtp) {
+                Trace.trc("Going forward to previous directory");
+            }
+            try {
+                currentDir = ftpHandler.pwd();
+
+                if (currentDir.equals("/")) {
+                    JOptionPane.showMessageDialog(rootFrame,
+                            "Cannot go back, you are in the root directory.");
+                } else if (currentDir.equals(lastKnownDir)) {
+                    JOptionPane.showMessageDialog(rootFrame,
+                            "Cannot go forward, "
+                            + "this is the last know directory you visited.");
+                } else {
+                    ftpHandler.cwd(lastKnownDir);
+                    currentDir = ftpHandler.pwd();
+                    String dirList = ftpHandler.list();
+                    outputTextArea.setText(dirList);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            JOptionPane.showMessageDialog(rootFrame,
+                    "Not connected to a server, cannot change directories!", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_forwardBtActionPerformed
+
+    private void rootBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rootBtActionPerformed
+
+        final char DIR_LIMITER = '/';
+        StringBuilder sb = new StringBuilder();
+
+        if (connected) {
+            if (Trace.connectionFtp) {
+                Trace.trc("Returning to root directory");
+            }
+            try {
+                String currentDir = ftpHandler.pwd();
+
+                if (!currentDir.equals("/")) {
+
+                    int counter = 0;
+
+                    for (int i = 0; i < currentDir.length(); i++) {
+                        if (currentDir.charAt(i) == DIR_LIMITER) {
+                            counter++;
+                        }
+                    }
+                    for (int i = 0; i < counter; i++) {
+                        sb.append("../");
+                    }
+                    ftpHandler.cwd(sb.toString());
+                    currentDir = ftpHandler.pwd();
+                    String dirList = ftpHandler.list();
+                    outputTextArea.setText(dirList);
+                } else {
+                    JOptionPane.showMessageDialog(rootFrame,
+                            "Cannot go to root, you already here.");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(rootFrame,
+                    "Not connected to a server, cannot disconnect!", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_rootBtActionPerformed
 
     /**
      * @param args the command line arguments
@@ -566,6 +775,8 @@ public class FtpDialog extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton backBt;
+    private javax.swing.JLabel backLabel;
     private javax.swing.JButton cdDirBt;
     private javax.swing.JLabel cdDirLabel;
     private javax.swing.JTextField cdDirText;
@@ -577,17 +788,22 @@ public class FtpDialog extends javax.swing.JFrame {
     private javax.swing.JButton fileDlBt;
     private javax.swing.JLabel fileDlLabel;
     private javax.swing.JTextField fileDlText;
-    private javax.swing.JPanel filesPanel;
+    private javax.swing.JButton forwardBt;
+    private javax.swing.JLabel forwardLabel;
     private javax.swing.JTextField hostAddressField;
     private javax.swing.JLabel hostAddressLabel;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton loginBt;
     private javax.swing.JPanel loginDialog;
+    private javax.swing.JPanel navigationPanel;
+    private javax.swing.JPanel outputPanel;
     private javax.swing.JTextArea outputTextArea;
     private javax.swing.JTextField passField;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.JLabel portNumberLabel;
     private javax.swing.JSpinner portNumberSp;
+    private javax.swing.JButton rootBt;
+    private javax.swing.JLabel rootLabel;
     private javax.swing.JButton uploadFileBt;
     private javax.swing.JFileChooser uploadFileChooser;
     private javax.swing.JLabel uploadFileLb;
