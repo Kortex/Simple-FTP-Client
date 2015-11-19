@@ -35,6 +35,6 @@ public class Trace {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date date = new Date();
         System.out.println(ANSI_RED + dateFormat.format(date) + ": " + trc + ANSI_RED);
-    } 
- 
+    }
+  
 }
