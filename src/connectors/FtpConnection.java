@@ -256,7 +256,7 @@ public class FtpConnection {
 
         BufferedOutputStream output = new BufferedOutputStream(dataSocket.getOutputStream());
 
-        byte[] buffer = new byte[4096];
+        byte[] buffer = new byte[8192];
         int bytesRead = 0;
 
         while ((bytesRead = input.read(buffer)) != -1) {
@@ -303,17 +303,119 @@ public class FtpConnection {
 
         byte[] buffer = new byte[4096];
         int bytesRead = 0;
+        int bytesUploaded = 0;
 
         while ((bytesRead = input.read(buffer)) != -1) {
             output.write(buffer, 0, bytesRead);
+            bytesUploaded += bytesRead;
             output.flush();
         }
+        
         output.close();
         input.close();
 
         response = readLine();
 
         return checkFileOperationsStatus(response);
+    }
+    
+    public synchronized boolean mkd(String dirName) throws IOException {
+        
+        String response = null;
+        boolean cmdOutput = false;
+        
+        try {
+            sendLine("MKD " + dirName);
+            response = readLine();
+            
+            if(Trace.connection){
+                Trace.trc("Attempting to create new directory: " + dirName);
+            }
+            if(response.startsWith("257")){
+                cmdOutput = response.startsWith("257"); 
+                if(Trace.connection){
+                    Trace.trc("Directory: " + dirName + " created successfully");
+                }
+            } else if(response.startsWith("550")) {
+                cmdOutput = !response.startsWith("257");
+                if(Trace.connection){
+                    Trace.trc("Could not create directory: " + dirName);
+                }
+            }
+            
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        
+        return cmdOutput;
+    }
+    
+    public synchronized boolean dele(String fileName) throws IOException {
+        
+        boolean cmdOutput = false;
+        String response =  null;
+        
+        try{
+            
+            sendLine("DELE " + fileName);
+            response = readLine();
+            
+            if(Trace.connection){
+                Trace.trc("Attempting to delete file: " + fileName);
+            }
+            
+            if(response.startsWith("250")){
+                cmdOutput = response.startsWith("250");
+                if(Trace.connection){
+                    Trace.trc("File: " + fileName + " deleted successfully");
+                }
+            } else if (response.startsWith("550")){
+                cmdOutput = !response.startsWith("250");
+                if(Trace.connection){
+                    Trace.trc("Could not delete file: " + fileName);
+                }
+            }
+            
+            
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        
+        return cmdOutput;
+    }
+    
+    public synchronized boolean rmd(String dirName) throws IOException {
+        
+        boolean cmdOutput = false;
+        String response =  null;
+        
+        try{
+            
+            sendLine("RMD " + dirName);
+            response = readLine();
+            
+            if(Trace.connection){
+                Trace.trc("Attempting to delete directory: " + dirName);
+            }
+            
+            if(response.startsWith("250")){
+                cmdOutput = response.startsWith("250");
+                if(Trace.connection){
+                    Trace.trc("Directory: " + dirName + " deleted successfully");
+                }
+            } else if (response.startsWith("550")){
+                cmdOutput = !response.startsWith("250");
+                if(Trace.connection){
+                    Trace.trc("Could not delete directory: " + dirName);
+                }
+            }
+            
+            
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        
+        return cmdOutput;
     }
 
     public synchronized boolean bin() throws IOException {
