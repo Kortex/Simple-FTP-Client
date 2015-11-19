@@ -79,19 +79,20 @@ public class FtpConnection {
 
         hostResponse = readLine();
         if (!hostResponse.startsWith("230")) {
-            if(hostResponse.startsWith("530")){
-                if (Trace.connection)
+            if (hostResponse.startsWith("530")) {
+                if (Trace.connection) {
                     Trace.trc("Incorrect server credentials, cannot connect!");
+                }
                 return false;
-            }
-            else
+            } else {
                 throw new IOException("Received unknown response when providing password: " + hostResponse);
+            }
         }
-        
+
         if (Trace.connection) {
             Trace.trc("Login successfull");
         }
-        
+
         return true;
 
     }
@@ -131,21 +132,19 @@ public class FtpConnection {
         sendLine("CWD " + dir);
         String response = readLine();
         boolean cmdOutcome = false;
-        
-        if(response.startsWith("250")){
-            if(Trace.connection){
+
+        if (response.startsWith("250")) {
+            if (Trace.connection) {
                 Trace.trc("Changed directory successfully");
             }
             cmdOutcome = true;
             return cmdOutcome;
-        }
-        else if(response.startsWith("550")){
-            if(Trace.connection){
+        } else if (response.startsWith("550")) {
+            if (Trace.connection) {
                 Trace.trc("Directory not found");
             }
             return cmdOutcome;
         }
-
         return cmdOutcome;
     }
 
@@ -200,9 +199,9 @@ public class FtpConnection {
     }
 
     public synchronized boolean passv() throws IOException {
-        
+
         Trace.ftpDialog = true;
-        
+
         sendLine("PASV");
         String response = readLine();
         if (!response.startsWith("227 ")) {
@@ -231,7 +230,7 @@ public class FtpConnection {
     }
 
     public synchronized boolean stor(InputStream inputStream, String filename) throws IOException {
-        
+
         Trace.ftpDialog = true;
 
         BufferedInputStream input = new BufferedInputStream(inputStream);
@@ -246,9 +245,10 @@ public class FtpConnection {
 
         response = readLine();
         if (!response.startsWith("150 ")) {
-            if(response.startsWith("550")){
-                if( Trace.connection)
+            if (response.startsWith("550")) {
+                if (Trace.connection) {
                     Trace.trc("Incorrect permissions to upload file!");
+                }
                 return false;
             }
             throw new IOException("Not allowed to send file: " + response);
@@ -264,11 +264,11 @@ public class FtpConnection {
             output.write(buffer, 0, bytesRead);
             output.flush();
         }
-        
+
         output.close();
         input.close();
         isPassive = false;
-        
+
         response = readLine();
 
         return checkFileOperationsStatus(response);
@@ -310,7 +310,7 @@ public class FtpConnection {
             bytesUploaded += bytesRead;
             output.flush();
         }
-        
+
         output.close();
         input.close();
 
@@ -318,110 +318,108 @@ public class FtpConnection {
 
         return checkFileOperationsStatus(response);
     }
-    
+
     public synchronized boolean mkd(String dirName) throws IOException {
-        
+
         String response = null;
         boolean cmdOutput = false;
-        
+
         try {
             sendLine("MKD " + dirName);
             response = readLine();
-            
-            if(Trace.connection){
+
+            if (Trace.connection) {
                 Trace.trc("Attempting to create new directory: " + dirName);
             }
-            if(response.startsWith("257")){
-                cmdOutput = response.startsWith("257"); 
-                if(Trace.connection){
+            if (response.startsWith("257")) {
+                cmdOutput = response.startsWith("257");
+                if (Trace.connection) {
                     Trace.trc("Directory: " + dirName + " created successfully");
                 }
-            } else if(response.startsWith("550")) {
+            } else if (response.startsWith("550")) {
                 cmdOutput = !response.startsWith("257");
-                if(Trace.connection){
+                if (Trace.connection) {
                     Trace.trc("Could not create directory: " + dirName);
                 }
             }
-            
-        } catch (IOException e){
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return cmdOutput;
     }
-    
+
     public synchronized boolean dele(String fileName) throws IOException {
-        
+
         boolean cmdOutput = false;
-        String response =  null;
-        
-        try{
-            
+        String response = null;
+
+        try {
+
             sendLine("DELE " + fileName);
             response = readLine();
-            
-            if(Trace.connection){
+
+            if (Trace.connection) {
                 Trace.trc("Attempting to delete file: " + fileName);
             }
-            
-            if(response.startsWith("250")){
+
+            if (response.startsWith("250")) {
                 cmdOutput = response.startsWith("250");
-                if(Trace.connection){
+                if (Trace.connection) {
                     Trace.trc("File: " + fileName + " deleted successfully");
                 }
-            } else if (response.startsWith("550")){
+            } else if (response.startsWith("550")) {
                 cmdOutput = !response.startsWith("250");
-                if(Trace.connection){
+                if (Trace.connection) {
                     Trace.trc("Could not delete file: " + fileName);
                 }
             }
-            
-            
-        }catch(IOException e){
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return cmdOutput;
     }
-    
+
     public synchronized boolean rmd(String dirName) throws IOException {
-        
+
         boolean cmdOutput = false;
-        String response =  null;
-        
-        try{
-            
+        String response = null;
+
+        try {
+
             sendLine("RMD " + dirName);
             response = readLine();
-            
-            if(Trace.connection){
+
+            if (Trace.connection) {
                 Trace.trc("Attempting to delete directory: " + dirName);
             }
-            
-            if(response.startsWith("250")){
+
+            if (response.startsWith("250")) {
                 cmdOutput = response.startsWith("250");
-                if(Trace.connection){
+                if (Trace.connection) {
                     Trace.trc("Directory: " + dirName + " deleted successfully");
                 }
-            } else if (response.startsWith("550")){
+            } else if (response.startsWith("550")) {
                 cmdOutput = !response.startsWith("250");
-                if(Trace.connection){
+                if (Trace.connection) {
                     Trace.trc("Could not delete directory: " + dirName);
                 }
             }
-            
-            
-        }catch(IOException e){
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return cmdOutput;
     }
 
     public synchronized boolean bin() throws IOException {
-        
+
         Trace.ftpDialog = true;
-        
+
         sendLine("TYPE I");
         String response = readLine();
         isBinary = true;
@@ -429,9 +427,9 @@ public class FtpConnection {
     }
 
     public synchronized boolean ascii() throws IOException {
-        
+
         Trace.ftpDialog = true;
-        
+
         sendLine("TYPE A");
         String response = readLine();
         return (response.startsWith("200 "));
@@ -452,8 +450,8 @@ public class FtpConnection {
             e.printStackTrace();
         }
     }
-    
-    private boolean checkFileOperationsStatus(String response) throws IOException{
+
+    private boolean checkFileOperationsStatus(String response) throws IOException {
 
         if (!response.startsWith("226")) {
             throw new IOException("Error");
@@ -461,7 +459,7 @@ public class FtpConnection {
             isPassive = false;
             return response.startsWith("226 ");
         }
-        
+
     }
 
     private String readLine() throws IOException {

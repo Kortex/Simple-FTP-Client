@@ -24,9 +24,9 @@ public class Trace {
     public static final String ANSI_PURPLE = "\u001B[35m";
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
-    
+
     public static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-    
+
     public static boolean connectionFtp;
     public static boolean connection;
     public static boolean ftpDialog;
@@ -36,5 +36,5 @@ public class Trace {
         Date date = new Date();
         System.out.println(ANSI_RED + dateFormat.format(date) + ": " + trc + ANSI_RED);
     }
-  
+
 }
