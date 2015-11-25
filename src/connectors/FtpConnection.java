@@ -241,7 +241,6 @@ public class FtpConnection {
         }
 
         sendLine("STOR " + filename);
-        Socket dataSocket = new Socket(ip, port);
 
         response = readLine();
         if (!response.startsWith("150 ")) {
@@ -260,7 +259,6 @@ public class FtpConnection {
         int bytesRead = 0;
 
         while ((bytesRead = input.read(buffer)) != -1) {
-            System.out.println(Charset.defaultCharset().decode(ByteBuffer.wrap(buffer)));
             output.write(buffer, 0, bytesRead);
             output.flush();
         }

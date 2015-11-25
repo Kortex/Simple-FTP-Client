@@ -11,6 +11,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -22,7 +24,7 @@ import utils.Trace;
  * @author 'Αρης Κουρτέσας
  */
 public class FtpDialog extends javax.swing.JFrame {
-    
+
     FtpConnection ftpHandler = new FtpConnection();
     private boolean connected = false;
     private String lastKnownDir = null;
@@ -495,22 +497,22 @@ public class FtpDialog extends javax.swing.JFrame {
             Trace.trc("Exiting program...");
             System.exit(0);
         }
-        
+
 
     }//GEN-LAST:event_closeBtActionPerformed
 
     private void loginBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginBtActionPerformed
-        
+
         String host = hostAddressField.getText();
         int port = (int) portNumberSp.getValue();
         String user = userNameField.getText();
         String pass = passField.getText();
         String hostIP = null;
-        
+
         Trace.connectionFtp = true;
-        
+
         InetAddress address = null;
-        
+
         if (!connected) {
             try {
                 address = InetAddress.getByName(host);;
@@ -532,7 +534,7 @@ public class FtpDialog extends javax.swing.JFrame {
                         "Error", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
             }
-            
+
             try {
                 if (address != null && port != 0 && user != null && pass != null) {
                     connected = ftpHandler.doConnect(hostIP, port, user, pass);
@@ -546,7 +548,7 @@ public class FtpDialog extends javax.swing.JFrame {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
+
             try {
                 if (Trace.connectionFtp) {
                     Trace.trc("Attempting to list the remote directory...");
@@ -566,10 +568,10 @@ public class FtpDialog extends javax.swing.JFrame {
     }//GEN-LAST:event_loginBtActionPerformed
 
     private void cdDirBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cdDirBtActionPerformed
-        
+
         Trace.connectionFtp = true;
         boolean hasChangedDir = false;
-        
+
         if (connected) {
             if (!cdDirText.getText().equals("")) {
                 if (Trace.connectionFtp) {
@@ -578,7 +580,7 @@ public class FtpDialog extends javax.swing.JFrame {
                 }
                 try {
                     hasChangedDir = ftpHandler.cwd(cdDirText.getText().trim());
-                    
+
                     if (hasChangedDir) {
                         lastKnownDir = ftpHandler.pwd();
                         String dirList = ftpHandler.list();
@@ -606,9 +608,9 @@ public class FtpDialog extends javax.swing.JFrame {
     }//GEN-LAST:event_cdDirBtActionPerformed
 
     private void fileDlBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileDlBtActionPerformed
-        
+
         Trace.connectionFtp = true;
-        
+
         if (connected) {
             boolean hasDownloaded = false;
             if (!fileDlText.getText().equals("")) {
@@ -639,9 +641,9 @@ public class FtpDialog extends javax.swing.JFrame {
     }//GEN-LAST:event_fileDlBtActionPerformed
 
     private void disconnectBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disconnectBtActionPerformed
-        
+
         Trace.connectionFtp = true;
-        
+
         if (connected) {
             if (Trace.connectionFtp) {
                 Trace.trc("Disconnecting from server: " + hostAddressField.getText());
@@ -652,13 +654,13 @@ public class FtpDialog extends javax.swing.JFrame {
             userNameField.setText("");
             passField.setText("");
             remoteSiteText.setText("");
-            
+
             try {
                 ftpHandler.disconnect();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
+
             connected = false;
             JOptionPane.showMessageDialog(rootFrame, "Disconnected from server.");
         } else {
@@ -670,7 +672,7 @@ public class FtpDialog extends javax.swing.JFrame {
     }//GEN-LAST:event_disconnectBtActionPerformed
 
     private void uploadFileBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uploadFileBtActionPerformed
-        
+
         fileChooserDialog.setVisible(true);
         fileChooserDialog.setSize(650, 500);
         fileChooserDialog.pack();
@@ -678,14 +680,15 @@ public class FtpDialog extends javax.swing.JFrame {
     }//GEN-LAST:event_uploadFileBtActionPerformed
 
     private void uploadFileChooserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uploadFileChooserActionPerformed
-        
+
         File selectedFile = uploadFileChooser.getSelectedFile();
         boolean hasUploaded = false;
-        
-        Trace.trc("File to upload: " + selectedFile.getName());
-        
+
+        Trace.trc("File to upload: " + selectedFile.getName() 
+                + " File size: " + selectedFile.length() / 2048 + " MBs");
+
         FileInputStream input = null;
-        
+
         if (connected) {
             if (!selectedFile.equals(null)) {
                 try {
@@ -693,8 +696,9 @@ public class FtpDialog extends javax.swing.JFrame {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                
+
                 try {
+                    fileChooserDialog.setVisible(false);
                     hasUploaded = ftpHandler.stor(input, selectedFile.getName());
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -704,11 +708,21 @@ public class FtpDialog extends javax.swing.JFrame {
                         "No file to upload has been chosen!", "Error",
                         JOptionPane.ERROR_MESSAGE);
             }
-            
+
             if (!hasUploaded) {
                 JOptionPane.showMessageDialog(rootFrame,
                         "Error uploading file to the remote server!", "Error",
                         JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(rootFrame, "File: " + selectedFile.getName()
+                        + " has uploaded successfully.");
+                try {
+                    String dirList = null;
+                    dirList = ftpHandler.list();
+                    outputTextArea.setText(dirList);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         } else {
             JOptionPane.showMessageDialog(rootFrame,
@@ -719,10 +733,10 @@ public class FtpDialog extends javax.swing.JFrame {
     }//GEN-LAST:event_uploadFileChooserActionPerformed
 
     private void backBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtActionPerformed
-        
+
         Trace.connectionFtp = true;
         String currentDir = null;
-        
+
         if (connected) {
             if (Trace.connectionFtp) {
                 Trace.trc("Going back to previous directory");
@@ -730,7 +744,7 @@ public class FtpDialog extends javax.swing.JFrame {
             try {
                 currentDir = ftpHandler.pwd();
                 lastKnownDir = currentDir;
-                
+
                 if (currentDir.equals("/")) {
                     JOptionPane.showMessageDialog(rootFrame,
                             "Cannot go back, you are in the root directory.");
@@ -752,16 +766,16 @@ public class FtpDialog extends javax.swing.JFrame {
     }//GEN-LAST:event_backBtActionPerformed
 
     private void forwardBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_forwardBtActionPerformed
-        
+
         String currentDir = null;
-        
+
         if (connected) {
             if (Trace.connectionFtp) {
                 Trace.trc("Going forward to previous directory");
             }
             try {
                 currentDir = ftpHandler.pwd();
-                
+
                 if (currentDir.equals("/")) {
                     JOptionPane.showMessageDialog(rootFrame,
                             "Cannot go back, you are in the root directory.");
@@ -787,10 +801,10 @@ public class FtpDialog extends javax.swing.JFrame {
     }//GEN-LAST:event_forwardBtActionPerformed
 
     private void rootBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rootBtActionPerformed
-        
+
         final char DIR_LIMITER = '/';
         StringBuilder sb = new StringBuilder();
-        
+
         if (connected) {
             if (Trace.connectionFtp) {
                 Trace.trc("Returning to root directory");
@@ -799,7 +813,7 @@ public class FtpDialog extends javax.swing.JFrame {
                 String currentDir = ftpHandler.pwd();
                 if (!currentDir.equals("/")) {
                     int counter = 0;
-                    
+
                     for (int i = 0; i < currentDir.length(); i++) {
                         if (currentDir.charAt(i) == DIR_LIMITER) {
                             counter++;
@@ -820,7 +834,7 @@ public class FtpDialog extends javax.swing.JFrame {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
+
         } else {
             JOptionPane.showMessageDialog(rootFrame,
                     "Not connected to a server, cannot change directories!", "Error",
@@ -829,15 +843,15 @@ public class FtpDialog extends javax.swing.JFrame {
     }//GEN-LAST:event_rootBtActionPerformed
 
     private void createDirBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createDirBtActionPerformed
-        
+
         String dirName = createDirText.getText().trim();
         boolean hasMadeDir = false;
-        
+
         if (connected) {
             if (Trace.connectionFtp) {
                 Trace.trc("Creating new directory: " + dirName);
             }
-            
+
             try {
                 hasMadeDir = ftpHandler.mkd(dirName);
                 if (hasMadeDir) {
@@ -850,7 +864,7 @@ public class FtpDialog extends javax.swing.JFrame {
                 } else {
                     JOptionPane.showMessageDialog(rootFrame,
                             "Could not create new directory!", "Error",
-                            JOptionPane.ERROR_MESSAGE);                    
+                            JOptionPane.ERROR_MESSAGE);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -865,12 +879,12 @@ public class FtpDialog extends javax.swing.JFrame {
     private void deleteFileBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteFileBtActionPerformed
         String fileName = deleteFileText.getText().trim();
         boolean hasDeleteFile = false;
-        
+
         if (connected) {
             if (Trace.connectionFtp) {
                 Trace.trc("Deleting file: " + fileName);
             }
-            
+
             try {
                 hasDeleteFile = ftpHandler.dele(fileName);
                 if (hasDeleteFile) {
@@ -883,7 +897,7 @@ public class FtpDialog extends javax.swing.JFrame {
                 } else {
                     JOptionPane.showMessageDialog(rootFrame,
                             "Could not delete file!", "Error",
-                            JOptionPane.ERROR_MESSAGE);                    
+                            JOptionPane.ERROR_MESSAGE);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -893,18 +907,18 @@ public class FtpDialog extends javax.swing.JFrame {
                     "Not connected to a server, cannot delete file!", "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
-        
+
     }//GEN-LAST:event_deleteFileBtActionPerformed
 
     private void deleteDirBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteDirBtActionPerformed
         String dirName = deleteDirText.getText().trim();
         boolean hasDeletedDir = false;
-        
+
         if (connected) {
             if (Trace.connectionFtp) {
                 Trace.trc("Deleting directory: " + dirName);
             }
-            
+
             try {
                 hasDeletedDir = ftpHandler.rmd(dirName);
                 if (hasDeletedDir) {
@@ -917,7 +931,7 @@ public class FtpDialog extends javax.swing.JFrame {
                 } else {
                     JOptionPane.showMessageDialog(rootFrame,
                             "Could not delete directory!", "Error",
-                            JOptionPane.ERROR_MESSAGE);                    
+                            JOptionPane.ERROR_MESSAGE);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
