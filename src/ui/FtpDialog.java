@@ -7,6 +7,7 @@ package ui;
 
 import connectors.FtpConnection;
 import java.awt.Dimension;
+import java.awt.GridBagLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,7 +16,9 @@ import java.net.UnknownHostException;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileSystemView;
 import org.apache.commons.lang3.StringUtils;
 import utils.Trace;
@@ -28,15 +31,53 @@ public class FtpDialog extends javax.swing.JFrame {
 
     FtpConnection ftpHandler = new FtpConnection();
     private boolean connected = false;
+    public boolean hasUploaded = false;
     private String lastKnownDir = null;
     private String currentDir = null;
     private final JFrame rootFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+    private FileInputStream input = null;
+    private File selectedFile = null;
 
-    /**
-     * Creates new form FtpDialog
-     */
+    private ProgressBar pb;
+
     public FtpDialog() {
         initComponents();
+    }
+
+    class ProgressBar extends SwingWorker<Void, Void> {
+
+        @Override
+        protected Void doInBackground() throws IOException {
+            progressBarDialog.setVisible(true);
+            progressBarDialog.setSize(350, 100);
+            progressBarDialog.pack();
+            uploadProgressBar.setIndeterminate(true);
+            hasUploaded = ftpHandler.stor(input, selectedFile.getName());
+
+            if (!hasUploaded) {
+                JOptionPane.showMessageDialog(rootFrame,
+                        "Error uploading file to the remote server!", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(rootFrame, "File: " + selectedFile.getName()
+                        + " has uploaded successfully.");
+                try {
+                    String dirList = null;
+                    dirList = ftpHandler.list();
+                    outputTextArea.setText(dirList);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void done() {
+            Trace.trc("Swing worker done");
+            progressBarDialog.setVisible(false);
+        }
     }
 
     /**
@@ -48,6 +89,10 @@ public class FtpDialog extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        progressBarDialog = new javax.swing.JDialog();
+        progressBarPanel = new javax.swing.JPanel();
+        uploadProgressBar = new javax.swing.JProgressBar();
+        progressBarLb = new javax.swing.JLabel();
         loginDialog = new javax.swing.JPanel();
         hostAddressLabel = new javax.swing.JLabel();
         portNumberLabel = new javax.swing.JLabel();
@@ -91,11 +136,51 @@ public class FtpDialog extends javax.swing.JFrame {
         remoteSitePanel = new javax.swing.JPanel();
         remoteSiteText = new javax.swing.JTextField();
 
+        progressBarDialog.setPreferredSize(new java.awt.Dimension(400, 135));
+
+        uploadProgressBar.setPreferredSize(new java.awt.Dimension(146, 50));
+
+        progressBarLb.setText("Uploading file:");
+
+        javax.swing.GroupLayout progressBarPanelLayout = new javax.swing.GroupLayout(progressBarPanel);
+        progressBarPanel.setLayout(progressBarPanelLayout);
+        progressBarPanelLayout.setHorizontalGroup(
+            progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(progressBarPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(uploadProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+            .addGroup(progressBarPanelLayout.createSequentialGroup()
+                .addGap(162, 162, 162)
+                .addComponent(progressBarLb)
+                .addContainerGap(170, Short.MAX_VALUE))
+        );
+        progressBarPanelLayout.setVerticalGroup(
+            progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, progressBarPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(progressBarLb, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(uploadProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(42, 42, 42))
+        );
+
+        javax.swing.GroupLayout progressBarDialogLayout = new javax.swing.GroupLayout(progressBarDialog.getContentPane());
+        progressBarDialog.getContentPane().setLayout(progressBarDialogLayout);
+        progressBarDialogLayout.setHorizontalGroup(
+            progressBarDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(progressBarPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        progressBarDialogLayout.setVerticalGroup(
+            progressBarDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(progressBarPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Java FTP Client ");
         setName("loginFrame"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(1100, 965));
-        setSize(new java.awt.Dimension(1100, 965));
+        setPreferredSize(new java.awt.Dimension(1100, 1000));
+        setSize(new java.awt.Dimension(1100, 1000));
 
         loginDialog.setBorder(javax.swing.BorderFactory.createTitledBorder("Session"));
 
@@ -199,7 +284,6 @@ public class FtpDialog extends javax.swing.JFrame {
         );
 
         commandPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Command set"));
-        commandPanel.setPreferredSize(new java.awt.Dimension(405, 230));
 
         fileDlLabel.setText("Select file to download:");
 
@@ -310,7 +394,6 @@ public class FtpDialog extends javax.swing.JFrame {
         );
 
         navigationPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Navigation Commands"));
-        navigationPanel.setPreferredSize(new java.awt.Dimension(410, 220));
 
         cdDirLabel.setText("Change to another directory:");
 
@@ -424,10 +507,9 @@ public class FtpDialog extends javax.swing.JFrame {
                         .addComponent(closeBt))
                     .addComponent(remoteSitePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(commandPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 410, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(navigationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(commandPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(navigationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -439,11 +521,14 @@ public class FtpDialog extends javax.swing.JFrame {
                 .addComponent(outputPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(remoteSitePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(5, 5, 5)
-                .addComponent(commandPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(navigationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(5, 5, 5)
+                        .addComponent(commandPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(navigationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 202, Short.MAX_VALUE)
                 .addComponent(closeBt)
                 .addContainerGap())
         );
@@ -646,26 +731,21 @@ public class FtpDialog extends javax.swing.JFrame {
         if (connected) {
             JFileChooser uploadFileChooser = new JFileChooser();
             uploadFileChooser.setPreferredSize(new Dimension(650, 450));
-            
+
             File rootDirectory = new File("C:\\");
-            
-            if(!rootDirectory.exists()){
-               uploadFileChooser.setCurrentDirectory(uploadFileChooser.getFileSystemView()
-                    .getParentDirectory(rootDirectory)); 
-            }
-             
+
+            uploadFileChooser.setCurrentDirectory(uploadFileChooser.getFileSystemView()
+                    .getParentDirectory(rootDirectory));
+
             uploadFileChooser.setDialogTitle("File to upload");
             int result = uploadFileChooser.showOpenDialog(this);
             switch (result) {
 
                 case JFileChooser.APPROVE_OPTION:
-                    File selectedFile = uploadFileChooser.getSelectedFile();
-                    boolean hasUploaded = false;
+                    selectedFile = uploadFileChooser.getSelectedFile();
 
                     Trace.trc("File to upload: " + selectedFile.getName()
                             + " File size: " + selectedFile.length() / 2048 + " MBs");
-
-                    FileInputStream input = null;
 
                     if (connected) {
                         if (!selectedFile.equals(null)) {
@@ -675,31 +755,14 @@ public class FtpDialog extends javax.swing.JFrame {
                                 e.printStackTrace();
                             }
 
-                            try {
-                                hasUploaded = ftpHandler.stor(input, selectedFile.getName());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                            pb = new ProgressBar();
+                            pb.execute();
+                            uploadFileChooser.setVisible(false);
+
                         } else {
                             JOptionPane.showMessageDialog(rootFrame,
                                     "No file to upload has been chosen!", "Error",
                                     JOptionPane.ERROR_MESSAGE);
-                        }
-
-                        if (!hasUploaded) {
-                            JOptionPane.showMessageDialog(rootFrame,
-                                    "Error uploading file to the remote server!", "Error",
-                                    JOptionPane.ERROR_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(rootFrame, "File: " + selectedFile.getName()
-                                    + " has uploaded successfully.");
-                            try {
-                                String dirList = null;
-                                dirList = ftpHandler.list();
-                                outputTextArea.setText(dirList);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
                         }
                     } else {
                         JOptionPane.showMessageDialog(rootFrame,
@@ -1009,12 +1072,16 @@ public class FtpDialog extends javax.swing.JFrame {
     private javax.swing.JLabel passwordLabel;
     private javax.swing.JLabel portNumberLabel;
     private javax.swing.JSpinner portNumberSp;
+    private javax.swing.JDialog progressBarDialog;
+    private javax.swing.JLabel progressBarLb;
+    private javax.swing.JPanel progressBarPanel;
     private javax.swing.JPanel remoteSitePanel;
     private javax.swing.JTextField remoteSiteText;
     private javax.swing.JButton rootBt;
     private javax.swing.JLabel rootLabel;
     private javax.swing.JButton uploadFileBt;
     private javax.swing.JLabel uploadFileLb;
+    private javax.swing.JProgressBar uploadProgressBar;
     private javax.swing.JTextField userNameField;
     private javax.swing.JLabel userNameLabel;
     // End of variables declaration//GEN-END:variables

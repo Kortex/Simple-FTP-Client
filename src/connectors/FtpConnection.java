@@ -148,15 +148,6 @@ public class FtpConnection {
         return cmdOutcome;
     }
 
-    public synchronized boolean stor(File file) throws IOException {
-        if (file.isDirectory()) {
-            throw new IOException("Cannot upload a directory");
-        }
-        String filename = file.getName();
-
-        return stor(new FileInputStream(file), filename);
-    }
-
     public synchronized String list() throws IOException {
 
         Trace.connection = true;
@@ -227,6 +218,15 @@ public class FtpConnection {
         isPassive = true;
 
         return true;
+    }
+    
+    public synchronized boolean stor(File file) throws IOException {
+        if (file.isDirectory()) {
+            throw new IOException("Cannot upload a directory");
+        }
+        String filename = file.getName();
+
+        return stor(new FileInputStream(file), filename);
     }
 
     public synchronized boolean stor(InputStream inputStream, String filename) throws IOException {
