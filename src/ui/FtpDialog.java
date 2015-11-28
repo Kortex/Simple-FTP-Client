@@ -6,16 +6,17 @@
 package ui;
 
 import connectors.FtpConnection;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileSystemView;
 import org.apache.commons.lang3.StringUtils;
 import utils.Trace;
 
@@ -47,9 +48,6 @@ public class FtpDialog extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        fileChooserDialog = new javax.swing.JDialog();
-        fileChooserPanel = new javax.swing.JPanel();
-        uploadFileChooser = new javax.swing.JFileChooser();
         loginDialog = new javax.swing.JPanel();
         hostAddressLabel = new javax.swing.JLabel();
         portNumberLabel = new javax.swing.JLabel();
@@ -93,36 +91,6 @@ public class FtpDialog extends javax.swing.JFrame {
         remoteSitePanel = new javax.swing.JPanel();
         remoteSiteText = new javax.swing.JTextField();
 
-        fileChooserDialog.setSize(new java.awt.Dimension(650, 500));
-
-        uploadFileChooser.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                uploadFileChooserActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout fileChooserPanelLayout = new javax.swing.GroupLayout(fileChooserPanel);
-        fileChooserPanel.setLayout(fileChooserPanelLayout);
-        fileChooserPanelLayout.setHorizontalGroup(
-            fileChooserPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(uploadFileChooser, javax.swing.GroupLayout.DEFAULT_SIZE, 620, Short.MAX_VALUE)
-        );
-        fileChooserPanelLayout.setVerticalGroup(
-            fileChooserPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(uploadFileChooser, javax.swing.GroupLayout.DEFAULT_SIZE, 622, Short.MAX_VALUE)
-        );
-
-        javax.swing.GroupLayout fileChooserDialogLayout = new javax.swing.GroupLayout(fileChooserDialog.getContentPane());
-        fileChooserDialog.getContentPane().setLayout(fileChooserDialogLayout);
-        fileChooserDialogLayout.setHorizontalGroup(
-            fileChooserDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(fileChooserPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        fileChooserDialogLayout.setVerticalGroup(
-            fileChooserDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(fileChooserPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Java FTP Client ");
         setName("loginFrame"); // NOI18N
@@ -141,7 +109,6 @@ public class FtpDialog extends javax.swing.JFrame {
 
         portNumberSp.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(21), null, null, Integer.valueOf(1)));
 
-        loginBt.setMnemonic('l');
         loginBt.setText("Login");
         loginBt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -149,6 +116,7 @@ public class FtpDialog extends javax.swing.JFrame {
             }
         });
 
+        disconnectBt.setMnemonic('1');
         disconnectBt.setText("Disconnect");
         disconnectBt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -181,7 +149,7 @@ public class FtpDialog extends javax.swing.JFrame {
                 .addComponent(loginBt)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(disconnectBt)
-                .addContainerGap(95, Short.MAX_VALUE))
+                .addContainerGap(104, Short.MAX_VALUE))
         );
         loginDialogLayout.setVerticalGroup(
             loginDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -475,7 +443,7 @@ public class FtpDialog extends javax.swing.JFrame {
                 .addComponent(commandPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(navigationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 61, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
                 .addComponent(closeBt)
                 .addContainerGap())
         );
@@ -549,16 +517,18 @@ public class FtpDialog extends javax.swing.JFrame {
                 e.printStackTrace();
             }
 
-            try {
-                if (Trace.connectionFtp) {
-                    Trace.trc("Attempting to list the remote directory...");
+            if (connected) {
+                try {
+                    if (Trace.connectionFtp) {
+                        Trace.trc("Attempting to list the remote directory...");
+                    }
+                    String dirList = ftpHandler.list();
+                    lastKnownDir = ftpHandler.pwd();
+                    outputTextArea.setText(dirList);
+                    remoteSiteText.setText(ftpHandler.pwd());
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                String dirList = ftpHandler.list();
-                lastKnownDir = ftpHandler.pwd();
-                outputTextArea.setText(dirList);
-                remoteSiteText.setText(ftpHandler.pwd());
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         } else {
             JOptionPane.showMessageDialog(rootFrame,
@@ -602,7 +572,7 @@ public class FtpDialog extends javax.swing.JFrame {
             }
         } else {
             JOptionPane.showMessageDialog(rootFrame,
-                    "Not connected to a server, cannot disconnect!", "Error",
+                    "Not connected to a server, cannot CWD!", "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_cdDirBtActionPerformed
@@ -673,64 +643,87 @@ public class FtpDialog extends javax.swing.JFrame {
 
     private void uploadFileBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uploadFileBtActionPerformed
 
-        fileChooserDialog.setVisible(true);
-        fileChooserDialog.setSize(650, 500);
-        fileChooserDialog.pack();
-
-    }//GEN-LAST:event_uploadFileBtActionPerformed
-
-    private void uploadFileChooserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uploadFileChooserActionPerformed
-
-        File selectedFile = uploadFileChooser.getSelectedFile();
-        boolean hasUploaded = false;
-
-        Trace.trc("File to upload: " + selectedFile.getName() 
-                + " File size: " + selectedFile.length() / 2048 + " MBs");
-
-        FileInputStream input = null;
-
         if (connected) {
-            if (!selectedFile.equals(null)) {
-                try {
-                    input = new FileInputStream(selectedFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            JFileChooser uploadFileChooser = new JFileChooser();
+            uploadFileChooser.setPreferredSize(new Dimension(650, 450));
+            
+            File rootDirectory = new File("C:\\");
+            
+            if(!rootDirectory.exists()){
+               uploadFileChooser.setCurrentDirectory(uploadFileChooser.getFileSystemView()
+                    .getParentDirectory(rootDirectory)); 
+            }
+             
+            uploadFileChooser.setDialogTitle("File to upload");
+            int result = uploadFileChooser.showOpenDialog(this);
+            switch (result) {
 
-                try {
-                    fileChooserDialog.setVisible(false);
-                    hasUploaded = ftpHandler.stor(input, selectedFile.getName());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                JOptionPane.showMessageDialog(rootFrame,
-                        "No file to upload has been chosen!", "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                case JFileChooser.APPROVE_OPTION:
+                    File selectedFile = uploadFileChooser.getSelectedFile();
+                    boolean hasUploaded = false;
+
+                    Trace.trc("File to upload: " + selectedFile.getName()
+                            + " File size: " + selectedFile.length() / 2048 + " MBs");
+
+                    FileInputStream input = null;
+
+                    if (connected) {
+                        if (!selectedFile.equals(null)) {
+                            try {
+                                input = new FileInputStream(selectedFile);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            try {
+                                hasUploaded = ftpHandler.stor(input, selectedFile.getName());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(rootFrame,
+                                    "No file to upload has been chosen!", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+
+                        if (!hasUploaded) {
+                            JOptionPane.showMessageDialog(rootFrame,
+                                    "Error uploading file to the remote server!", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(rootFrame, "File: " + selectedFile.getName()
+                                    + " has uploaded successfully.");
+                            try {
+                                String dirList = null;
+                                dirList = ftpHandler.list();
+                                outputTextArea.setText(dirList);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(rootFrame,
+                                "Not connected to a server, cannot upload file!", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                    break;
+
+                case JFileChooser.CANCEL_OPTION:
+                    Trace.trc("Closing file chooser dialog");
+                    break;
+
+                case JFileChooser.ERROR_OPTION:
+                    Trace.trc("An error occured");
+                    break;
             }
 
-            if (!hasUploaded) {
-                JOptionPane.showMessageDialog(rootFrame,
-                        "Error uploading file to the remote server!", "Error",
-                        JOptionPane.ERROR_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(rootFrame, "File: " + selectedFile.getName()
-                        + " has uploaded successfully.");
-                try {
-                    String dirList = null;
-                    dirList = ftpHandler.list();
-                    outputTextArea.setText(dirList);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         } else {
             JOptionPane.showMessageDialog(rootFrame,
                     "Not connected to a server, cannot upload file!", "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
 
-    }//GEN-LAST:event_uploadFileChooserActionPerformed
+    }//GEN-LAST:event_uploadFileBtActionPerformed
 
     private void backBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtActionPerformed
 
@@ -998,8 +991,6 @@ public class FtpDialog extends javax.swing.JFrame {
     private javax.swing.JLabel deleteFileLb;
     private javax.swing.JTextField deleteFileText;
     private javax.swing.JButton disconnectBt;
-    private javax.swing.JDialog fileChooserDialog;
-    private javax.swing.JPanel fileChooserPanel;
     private javax.swing.JButton fileDlBt;
     private javax.swing.JLabel fileDlLabel;
     private javax.swing.JTextField fileDlText;
@@ -1023,7 +1014,6 @@ public class FtpDialog extends javax.swing.JFrame {
     private javax.swing.JButton rootBt;
     private javax.swing.JLabel rootLabel;
     private javax.swing.JButton uploadFileBt;
-    private javax.swing.JFileChooser uploadFileChooser;
     private javax.swing.JLabel uploadFileLb;
     private javax.swing.JTextField userNameField;
     private javax.swing.JLabel userNameLabel;
