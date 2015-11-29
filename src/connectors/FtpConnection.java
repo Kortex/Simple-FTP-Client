@@ -413,6 +413,26 @@ public class FtpConnection {
 
         return cmdOutput;
     }
+    
+    public synchronized boolean abor() throws IOException {
+        
+        Trace.ftpDialog = true;
+        String response = null;
+        
+        try {
+            
+            sendLine("ABOR");
+            response = readLine();
+            
+            if(Trace.connection){
+                Trace.trc("Aborting upload process");
+            } 
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        
+        return checkFileOperationsStatus(response);
+    }
 
     public synchronized boolean bin() throws IOException {
 

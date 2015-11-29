@@ -13,6 +13,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -20,6 +23,7 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileSystemView;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import utils.Trace;
 
@@ -51,9 +55,30 @@ public class FtpDialog extends javax.swing.JFrame {
             progressBarDialog.setVisible(true);
             progressBarDialog.setSize(350, 100);
             progressBarDialog.pack();
+            
             uploadProgressBar.setIndeterminate(true);
+            
+            fileNameRsLb.setText(selectedFile.getName());
+            completRsLb.setText("");
+            fileSizeRsLb.setText(FileUtils.
+                    byteCountToDisplaySize(selectedFile.length()));
+            
+            long startTime = System.currentTimeMillis();
             hasUploaded = ftpHandler.stor(input, selectedFile.getName());
-
+            long endTime = System.currentTimeMillis();
+            
+            long completionTime = endTime - startTime;
+            
+            Trace.trc("Completion time: " + TimeUnit.MILLISECONDS.toSeconds(completionTime));
+            
+            completRsLb.setText(String.format("%02d min, %02d sec",
+                    TimeUnit.MILLISECONDS.toMinutes(completionTime),
+                    TimeUnit.MILLISECONDS.toSeconds(completionTime)
+                    - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(completionTime))
+            ));
+            
+            
+            
             if (!hasUploaded) {
                 JOptionPane.showMessageDialog(rootFrame,
                         "Error uploading file to the remote server!", "Error",
@@ -93,6 +118,12 @@ public class FtpDialog extends javax.swing.JFrame {
         progressBarPanel = new javax.swing.JPanel();
         uploadProgressBar = new javax.swing.JProgressBar();
         progressBarLb = new javax.swing.JLabel();
+        completLb = new javax.swing.JLabel();
+        fileSizeLb = new javax.swing.JLabel();
+        fileNameLb = new javax.swing.JLabel();
+        completRsLb = new javax.swing.JLabel();
+        fileSizeRsLb = new javax.swing.JLabel();
+        fileNameRsLb = new javax.swing.JLabel();
         loginDialog = new javax.swing.JPanel();
         hostAddressLabel = new javax.swing.JLabel();
         portNumberLabel = new javax.swing.JLabel();
@@ -136,33 +167,71 @@ public class FtpDialog extends javax.swing.JFrame {
         remoteSitePanel = new javax.swing.JPanel();
         remoteSiteText = new javax.swing.JTextField();
 
-        progressBarDialog.setPreferredSize(new java.awt.Dimension(400, 135));
+        progressBarDialog.setTitle("File upload");
+        progressBarDialog.setPreferredSize(new java.awt.Dimension(400, 250));
 
         uploadProgressBar.setPreferredSize(new java.awt.Dimension(146, 50));
 
         progressBarLb.setText("Uploading file:");
+
+        completLb.setText("Completion time:");
+
+        fileSizeLb.setText("File size: ");
+
+        fileNameLb.setText("File name: ");
 
         javax.swing.GroupLayout progressBarPanelLayout = new javax.swing.GroupLayout(progressBarPanel);
         progressBarPanel.setLayout(progressBarPanelLayout);
         progressBarPanelLayout.setHorizontalGroup(
             progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(progressBarPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(uploadProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(progressBarPanelLayout.createSequentialGroup()
+                        .addGap(160, 160, 160)
+                        .addComponent(progressBarLb)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(progressBarPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(uploadProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(progressBarPanelLayout.createSequentialGroup()
+                                .addComponent(fileNameLb)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(fileNameRsLb))))
+                    .addGroup(progressBarPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(progressBarPanelLayout.createSequentialGroup()
+                                .addComponent(completLb)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(progressBarPanelLayout.createSequentialGroup()
+                                .addComponent(fileSizeLb)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(completRsLb, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(fileSizeRsLb, javax.swing.GroupLayout.Alignment.TRAILING))))
                 .addContainerGap())
-            .addGroup(progressBarPanelLayout.createSequentialGroup()
-                .addGap(162, 162, 162)
-                .addComponent(progressBarLb)
-                .addContainerGap(170, Short.MAX_VALUE))
         );
         progressBarPanelLayout.setVerticalGroup(
             progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, progressBarPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addComponent(progressBarLb, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(uploadProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(42, 42, 42))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(completLb)
+                    .addComponent(completRsLb))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fileSizeLb)
+                    .addComponent(fileSizeRsLb))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fileNameLb)
+                    .addComponent(fileNameRsLb))
+                .addContainerGap(31, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout progressBarDialogLayout = new javax.swing.GroupLayout(progressBarDialog.getContentPane());
@@ -173,7 +242,7 @@ public class FtpDialog extends javax.swing.JFrame {
         );
         progressBarDialogLayout.setVerticalGroup(
             progressBarDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(progressBarPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(progressBarPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -745,7 +814,7 @@ public class FtpDialog extends javax.swing.JFrame {
                     selectedFile = uploadFileChooser.getSelectedFile();
 
                     Trace.trc("File to upload: " + selectedFile.getName()
-                            + " File size: " + selectedFile.length() / 2048 + " MBs");
+                            + " File size: " + FileUtils.byteCountToDisplaySize(selectedFile.length()));
 
                     if (connected) {
                         if (!selectedFile.equals(null)) {
@@ -757,6 +826,7 @@ public class FtpDialog extends javax.swing.JFrame {
 
                             pb = new ProgressBar();
                             pb.execute();
+                           
                             uploadFileChooser.setVisible(false);
 
                         } else {
@@ -1045,6 +1115,8 @@ public class FtpDialog extends javax.swing.JFrame {
     private javax.swing.JTextField cdDirText;
     private javax.swing.JButton closeBt;
     private javax.swing.JPanel commandPanel;
+    private javax.swing.JLabel completLb;
+    private javax.swing.JLabel completRsLb;
     private javax.swing.JButton createDirBt;
     private javax.swing.JTextField createDirText;
     private javax.swing.JButton deleteDirBt;
@@ -1057,6 +1129,10 @@ public class FtpDialog extends javax.swing.JFrame {
     private javax.swing.JButton fileDlBt;
     private javax.swing.JLabel fileDlLabel;
     private javax.swing.JTextField fileDlText;
+    private javax.swing.JLabel fileNameLb;
+    private javax.swing.JLabel fileNameRsLb;
+    private javax.swing.JLabel fileSizeLb;
+    private javax.swing.JLabel fileSizeRsLb;
     private javax.swing.JButton forwardBt;
     private javax.swing.JLabel forwardLabel;
     private javax.swing.JTextField hostAddressField;
