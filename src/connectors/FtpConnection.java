@@ -17,8 +17,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.StringTokenizer;
 import utils.Trace;
 
@@ -368,7 +366,7 @@ public class FtpConnection {
                     Trace.trc("File: " + fileName + " deleted successfully");
                 }
             } else if (response.startsWith("550")) {
-                cmdOutput = !response.startsWith("250");
+                cmdOutput = response.startsWith("250");
                 if (Trace.connection) {
                     Trace.trc("Could not delete file: " + fileName);
                 }
@@ -401,7 +399,7 @@ public class FtpConnection {
                     Trace.trc("Directory: " + dirName + " deleted successfully");
                 }
             } else if (response.startsWith("550")) {
-                cmdOutput = !response.startsWith("250");
+                cmdOutput = response.startsWith("250");
                 if (Trace.connection) {
                     Trace.trc("Could not delete directory: " + dirName);
                 }

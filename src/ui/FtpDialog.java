@@ -7,22 +7,18 @@ package ui;
 
 import connectors.FtpConnection;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.filechooser.FileSystemView;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import utils.Trace;
@@ -133,8 +129,8 @@ public class FtpDialog extends javax.swing.JFrame {
         userNameField = new javax.swing.JTextField();
         portNumberSp = new javax.swing.JSpinner();
         loginBt = new javax.swing.JButton();
-        passField = new javax.swing.JTextField();
         disconnectBt = new javax.swing.JButton();
+        passField = new javax.swing.JPasswordField();
         closeBt = new javax.swing.JButton();
         outputPanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -164,11 +160,12 @@ public class FtpDialog extends javax.swing.JFrame {
         forwardBt = new javax.swing.JButton();
         rootLabel = new javax.swing.JLabel();
         rootBt = new javax.swing.JButton();
+        refreshLb = new javax.swing.JLabel();
+        refreshBt = new javax.swing.JButton();
         remoteSitePanel = new javax.swing.JPanel();
         remoteSiteText = new javax.swing.JTextField();
 
         progressBarDialog.setTitle("File upload");
-        progressBarDialog.setPreferredSize(new java.awt.Dimension(400, 250));
 
         uploadProgressBar.setPreferredSize(new java.awt.Dimension(146, 50));
 
@@ -224,9 +221,10 @@ public class FtpDialog extends javax.swing.JFrame {
                     .addComponent(completLb)
                     .addComponent(completRsLb))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(fileSizeLb)
-                    .addComponent(fileSizeRsLb))
+                    .addGroup(progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(fileSizeRsLb)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(progressBarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(fileNameLb)
@@ -297,13 +295,13 @@ public class FtpDialog extends javax.swing.JFrame {
                 .addComponent(userNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(passwordLabel)
+                .addGap(6, 6, 6)
+                .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(loginBt)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(disconnectBt)
-                .addContainerGap(104, Short.MAX_VALUE))
+                .addContainerGap(95, Short.MAX_VALUE))
         );
         loginDialogLayout.setVerticalGroup(
             loginDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -317,8 +315,8 @@ public class FtpDialog extends javax.swing.JFrame {
                     .addComponent(userNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(passwordLabel)
                     .addComponent(loginBt)
-                    .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(disconnectBt))
+                    .addComponent(disconnectBt)
+                    .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -500,6 +498,15 @@ public class FtpDialog extends javax.swing.JFrame {
             }
         });
 
+        refreshLb.setText("Refresh:");
+
+        refreshBt.setText("Refresh");
+        refreshBt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshBtActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout navigationPanelLayout = new javax.swing.GroupLayout(navigationPanel);
         navigationPanel.setLayout(navigationPanelLayout);
         navigationPanelLayout.setHorizontalGroup(
@@ -513,13 +520,15 @@ public class FtpDialog extends javax.swing.JFrame {
                         .addComponent(cdDirText, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(backLabel)
                     .addComponent(forwardLabel)
-                    .addComponent(rootLabel))
+                    .addComponent(rootLabel)
+                    .addComponent(refreshLb))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(cdDirBt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(backBt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(forwardBt, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
-                    .addComponent(rootBt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(rootBt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(refreshBt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         navigationPanelLayout.setVerticalGroup(
@@ -542,7 +551,11 @@ public class FtpDialog extends javax.swing.JFrame {
                 .addGroup(navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(rootLabel)
                     .addComponent(rootBt))
-                .addContainerGap(46, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(navigationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(refreshLb)
+                    .addComponent(refreshBt))
+                .addContainerGap(51, Short.MAX_VALUE))
         );
 
         remoteSitePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Remote site"));
@@ -590,14 +603,11 @@ public class FtpDialog extends javax.swing.JFrame {
                 .addComponent(outputPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(remoteSitePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(5, 5, 5)
-                        .addComponent(commandPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(navigationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 202, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(commandPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(navigationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 196, Short.MAX_VALUE)
                 .addComponent(closeBt)
                 .addContainerGap())
         );
@@ -628,7 +638,8 @@ public class FtpDialog extends javax.swing.JFrame {
         String host = hostAddressField.getText();
         int port = (int) portNumberSp.getValue();
         String user = userNameField.getText();
-        String pass = passField.getText();
+        char[] password = passField.getPassword();
+        String pass = new String(password);
         String hostIP = null;
 
         Trace.connectionFtp = true;
@@ -660,6 +671,7 @@ public class FtpDialog extends javax.swing.JFrame {
             try {
                 if (address != null && port != 0 && user != null && pass != null) {
                     connected = ftpHandler.doConnect(hostIP, port, user, pass);
+                    Arrays.fill(password, '0');
                     if (!connected) {
                         JOptionPane.showMessageDialog(rootFrame,
                                 "Problem iniating connection to the FTP server, please check your login credentials",
@@ -1069,6 +1081,23 @@ public class FtpDialog extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_deleteDirBtActionPerformed
 
+    private void refreshBtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshBtActionPerformed
+
+        if (connected) {
+            try {
+                ftpHandler.pwd();
+                String dirList = ftpHandler.list();
+                outputTextArea.setText(dirList);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+           JOptionPane.showMessageDialog(rootFrame,
+                    "Not connected to a server, cannot refresh directory!", "Error",
+                    JOptionPane.ERROR_MESSAGE); 
+        }
+    }//GEN-LAST:event_refreshBtActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1144,13 +1173,15 @@ public class FtpDialog extends javax.swing.JFrame {
     private javax.swing.JPanel navigationPanel;
     private javax.swing.JPanel outputPanel;
     private javax.swing.JTextArea outputTextArea;
-    private javax.swing.JTextField passField;
+    private javax.swing.JPasswordField passField;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.JLabel portNumberLabel;
     private javax.swing.JSpinner portNumberSp;
     private javax.swing.JDialog progressBarDialog;
     private javax.swing.JLabel progressBarLb;
     private javax.swing.JPanel progressBarPanel;
+    private javax.swing.JButton refreshBt;
+    private javax.swing.JLabel refreshLb;
     private javax.swing.JPanel remoteSitePanel;
     private javax.swing.JTextField remoteSiteText;
     private javax.swing.JButton rootBt;
